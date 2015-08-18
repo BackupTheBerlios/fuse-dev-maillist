@@ -1,0 +1,130 @@
+From a.engelbert at gmx.de  Mon Oct 31 12:41:57 2005
+From: a.engelbert at gmx.de (Andreas Engelbert)
+Date: Mon, 31 Oct 2005 12:41:57 +0100
+Subject: [Fuse-dev] Fuse-J trubble: javafs.c compile errors
+Message-ID: <43660305.6040108@gmx.de>
+
+Hello!
+
+fuse really is a great idea. i cant wait to write a freenet-like hash-fs
+and a sql-querry-fs, if that makes any sens  :) . the java bindings for
+fuse are exactly, what i hoped for, because i never get used to the
+cryptic c code with all its black magic. but i ran into trouble
+compiling FUSE-J:
+
+/usr/local/src/fuse-j# make
+
+/usr/lib/j2sdk1.5-sun/bin/javac -d build src/fuse/util/Log.java
+src/fuse/util/Struct.java src/fuse/zipfs/util/Tree.java
+src/fuse/zipfs/util/Node.java src/fuse/zipfs/ZipFileDataReader.java
+src/fuse/zipfs/ZipFilesystem.java src/fuse/zipfs/MultiZipFilesystem.java
+src/fuse/zipfs/ZipEntryDataReader.java src/fuse/FuseStat.java
+src/fuse/FuseFtype.java src/fuse/FuseDirEnt.java
+src/fuse/FuseException.java src/fuse/FuseMount.java
+src/fuse/FakeFilesystem.java src/fuse/FuseStatfs.java
+src/fuse/staticfs/DirectoryNode.java
+src/fuse/staticfs/ReadOnlySymlinkNode.java
+src/fuse/staticfs/ReadOnlyFileNode.java
+src/fuse/staticfs/StaticFilesystem.java src/fuse/staticfs/Node.java
+src/fuse/staticfs/SymlinkNode.java src/fuse/staticfs/FileNode.java
+src/fuse/staticfs/MountpointNode.java src/fuse/Filesystem.java
+src/java2c/CAPIGenerator.java
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/usr/lib/j2sdk1.5-sun/bin/java -classpath build java2c.CAPIGenerator \
+jni/javafs_bindings.h jni/javafs_bindings.c javafs.h
+make -C jni all
+make[1]: Entering directory `/usr/local/src/fuse-j/jni'
+gcc -c -I/usr/local/include -I/usr/lib/j2sdk1.5-sun/include
+-I/usr/lib/j2sdk1.5-sun/include/linux javafs.c -o javafs.o
+In file included from /usr/local/include/fuse/fuse.h:19,
+                 from /usr/local/include/fuse.h:9,
+                 from javafs.h:15,
+                 from javafs.c:10:
+/usr/local/include/fuse/fuse_common.h:31:2: error: #error Please add
+-D_FILE_OFFSET_BITS=64 to your compile flags!
+javafs.c:715: warning: ?struct fuse_statfs? declared inside parameter list
+javafs.c:715: warning: its scope is only this definition or declaration,
+which is probably not what you want
+javafs.c: In function ?javafs_statfs?:
+javafs.c:725: error: dereferencing pointer to incomplete type
+javafs.c:726: error: dereferencing pointer to incomplete type
+javafs.c:727: error: dereferencing pointer to incomplete type
+javafs.c:728: error: dereferencing pointer to incomplete type
+javafs.c:729: error: dereferencing pointer to incomplete type
+javafs.c:730: error: dereferencing pointer to incomplete type
+javafs.c: At top level:
+javafs.c:782: warning: initialization from incompatible pointer type
+make[1]: *** [javafs.o] Error 1
+make[1]: Leaving directory `/usr/local/src/fuse-j/jni'
+make: *** [jni_all] Error 2
+
+
+
+>> my gcc version info:
+
+
+/usr/local/src/fuse-j# gcc -v
+
+Using built-in specs.
+Target: i486-linux-gnu
+Configured with: ../src/configure -v
+--enable-languages=c,c++,java,f95,objc,ada,treelang --prefix=/usr
+--with-gxx-include-dir=/usr/include/c++/4.0.2 --enable-shared
+--with-system-zlib --libexecdir=/usr/lib --enable-nls
+--without-included-gettext --enable-threads=posix --program-suffix=-4.0
+--enable-__cxa_atexit --enable-libstdcxx-allocator=mt
+--enable-clocale=gnu --enable-libstdcxx-debug --enable-java-gc=boehm
+--enable-java-awt=gtk --enable-gtk-cairo
+--with-java-home=/usr/lib/jvm/java-1.4.2-gcj-4.0-1.4.2.0/jre
+--enable-mpfr --disable-werror --enable-checking=release i486-linux-gnu
+Thread model: posix
+gcc version 4.0.2 20050808 (prerelease) (Ubuntu 4.0.1-4ubuntu9)
+
+
+
+>> and the code snippet responsible for the errors
+>> starting at line 715:
+
+
+
+static int javafs_statfs(struct fuse_statfs *fst)
+{
+   JNIEnv *env = get_env();
+   jobject jStatfs = NULL;
+
+   while (1)
+   {
+      jStatfs = (*env)->CallObjectMethod(env, filesystem,
+Filesystem->method.statfs);
+      if ((*env)->ExceptionCheck(env)) break;
+
+      fst->block_size  = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.blockSize);
+      fst->blocks      = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.blocks);
+      fst->blocks_free = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.blocksFree);
+      fst->files       = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.files);
+      fst->files_free  = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.filesFree);
+      fst->namelen     = (*env)->GetIntField(env, jStatfs,
+FuseStatfs->field.namelen);
+      break;
+   }
+
+   // cleanup
+
+--
+   statfs:     javafs_statfs,
+   release:    javafs_release
+};
+
+
+Any help getting a workable fuseJ-fs would be greatly appreciated.
+
+-- 
+Andreas Engelbert, a.engelbert at gmx.de
+
+

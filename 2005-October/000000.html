@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Fuse-dev] Fuse-J trubble: javafs.c compile errors
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fuse-dev/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:fuse-dev%40lists.berlios.de?Subject=Re%3A%20%5BFuse-dev%5D%20Fuse-J%20trubble%3A%20javafs.c%20compile%20errors&In-Reply-To=%3C43660305.6040108%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Fuse-dev] Fuse-J trubble: javafs.c compile errors</H1>
+    <B>Andreas Engelbert</B> 
+    <A HREF="mailto:fuse-dev%40lists.berlios.de?Subject=Re%3A%20%5BFuse-dev%5D%20Fuse-J%20trubble%3A%20javafs.c%20compile%20errors&In-Reply-To=%3C43660305.6040108%40gmx.de%3E"
+       TITLE="[Fuse-dev] Fuse-J trubble: javafs.c compile errors">a.engelbert at gmx.de
+       </A><BR>
+    <I>Mon Oct 31 12:41:57 CET 2005</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello!
+
+fuse really is a great idea. i cant wait to write a freenet-like hash-fs
+and a sql-querry-fs, if that makes any sens  :) . the java bindings for
+fuse are exactly, what i hoped for, because i never get used to the
+cryptic c code with all its black magic. but i ran into trouble
+compiling FUSE-J:
+
+/usr/local/src/fuse-j# make
+
+/usr/lib/j2sdk1.5-sun/bin/javac -d build src/fuse/util/Log.java
+src/fuse/util/Struct.java src/fuse/zipfs/util/Tree.java
+src/fuse/zipfs/util/Node.java src/fuse/zipfs/ZipFileDataReader.java
+src/fuse/zipfs/ZipFilesystem.java src/fuse/zipfs/MultiZipFilesystem.java
+src/fuse/zipfs/ZipEntryDataReader.java src/fuse/FuseStat.java
+src/fuse/FuseFtype.java src/fuse/FuseDirEnt.java
+src/fuse/FuseException.java src/fuse/FuseMount.java
+src/fuse/FakeFilesystem.java src/fuse/FuseStatfs.java
+src/fuse/staticfs/DirectoryNode.java
+src/fuse/staticfs/ReadOnlySymlinkNode.java
+src/fuse/staticfs/ReadOnlyFileNode.java
+src/fuse/staticfs/StaticFilesystem.java src/fuse/staticfs/Node.java
+src/fuse/staticfs/SymlinkNode.java src/fuse/staticfs/FileNode.java
+src/fuse/staticfs/MountpointNode.java src/fuse/Filesystem.java
+src/java2c/CAPIGenerator.java
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/usr/lib/j2sdk1.5-sun/bin/java -classpath build java2c.CAPIGenerator \
+jni/javafs_bindings.h jni/javafs_bindings.c javafs.h
+make -C jni all
+make[1]: Entering directory `/usr/local/src/fuse-j/jni'
+gcc -c -I/usr/local/include -I/usr/lib/j2sdk1.5-sun/include
+-I/usr/lib/j2sdk1.5-sun/include/linux javafs.c -o javafs.o
+In file included from /usr/local/include/fuse/fuse.h:19,
+                 from /usr/local/include/fuse.h:9,
+                 from javafs.h:15,
+                 from javafs.c:10:
+/usr/local/include/fuse/fuse_common.h:31:2: error: #error Please add
+-D_FILE_OFFSET_BITS=64 to your compile flags!
+javafs.c:715: warning: &#8216;struct fuse_statfs&#8217; declared inside parameter list
+javafs.c:715: warning: its scope is only this definition or declaration,
+which is probably not what you want
+javafs.c: In function &#8216;javafs_statfs&#8217;:
+javafs.c:725: error: dereferencing pointer to incomplete type
+javafs.c:726: error: dereferencing pointer to incomplete type
+javafs.c:727: error: dereferencing pointer to incomplete type
+javafs.c:728: error: dereferencing pointer to incomplete type
+javafs.c:729: error: dereferencing pointer to incomplete type
+javafs.c:730: error: dereferencing pointer to incomplete type
+javafs.c: At top level:
+javafs.c:782: warning: initialization from incompatible pointer type
+make[1]: *** [javafs.o] Error 1
+make[1]: Leaving directory `/usr/local/src/fuse-j/jni'
+make: *** [jni_all] Error 2
+
+
+
+&gt;&gt;<i> my gcc version info:
+</I>
+
+/usr/local/src/fuse-j# gcc -v
+
+Using built-in specs.
+Target: i486-linux-gnu
+Configured with: ../src/configure -v
+--enable-languages=c,c++,java,f95,objc,ada,treelang --prefix=/usr
+--with-gxx-include-dir=/usr/include/c++/4.0.2 --enable-shared
+--with-system-zlib --libexecdir=/usr/lib --enable-nls
+--without-included-gettext --enable-threads=posix --program-suffix=-4.0
+--enable-__cxa_atexit --enable-libstdcxx-allocator=mt
+--enable-clocale=gnu --enable-libstdcxx-debug --enable-java-gc=boehm
+--enable-java-awt=gtk --enable-gtk-cairo
+--with-java-home=/usr/lib/jvm/java-1.4.2-gcj-4.0-1.4.2.0/jre
+--enable-mpfr --disable-werror --enable-checking=release i486-linux-gnu
+Thread model: posix
+gcc version 4.0.2 20050808 (prerelease) (Ubuntu 4.0.1-4ubuntu9)
+
+
+
+&gt;&gt;<i> and the code snippet responsible for the errors
+</I>&gt;&gt;<i> starting at line 715:
+</I>
+
+
+static int javafs_statfs(struct fuse_statfs *fst)
+{
+   JNIEnv *env = get_env();
+   jobject jStatfs = NULL;
+
+   while (1)
+   {
+      jStatfs = (*env)-&gt;CallObjectMethod(env, filesystem,
+Filesystem-&gt;method.statfs);
+      if ((*env)-&gt;ExceptionCheck(env)) break;
+
+      fst-&gt;block_size  = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.blockSize);
+      fst-&gt;blocks      = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.blocks);
+      fst-&gt;blocks_free = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.blocksFree);
+      fst-&gt;files       = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.files);
+      fst-&gt;files_free  = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.filesFree);
+      fst-&gt;namelen     = (*env)-&gt;GetIntField(env, jStatfs,
+FuseStatfs-&gt;field.namelen);
+      break;
+   }
+
+   // cleanup
+
+--
+   statfs:     javafs_statfs,
+   release:    javafs_release
+};
+
+
+Any help getting a workable fuseJ-fs would be greatly appreciated.
+
+-- 
+Andreas Engelbert, <A HREF="https://lists.berlios.de/mailman/listinfo/fuse-dev">a.engelbert at gmx.de</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fuse-dev">More information about the Fuse-dev
+mailing list</a><br>
+</body></html>
